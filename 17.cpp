@@ -1,87 +1,62 @@
 #include <iostream>
-#include <string>
 
 using namespace std;
 
 /*
-小易喜欢的单词具有以下特性：
-1.单词每个字母都是大写字母
-2.单词没有连续相等的字母
-3.单词没有形如“xyxy”(这里的x，y指的都是字母，并且可以相同)这样的子序列，子序列可能不连续。
-例如：
-小易不喜欢"ABBA"，因为这里有两个连续的'B'
-小易不喜欢"THETXH"，因为这里包含子序列"THTH"
-小易不喜欢"ABACADA"，因为这里包含子序列"AAAA"
-小易喜欢"A","ABA"和"ABCBA"这些单词
-给你一个单词，你要回答小易是否会喜欢这个单词。*/
-
-/*
-输入描述:
-输入为一个字符串，都由大写字母组成，长度小于100
-
-输出描述:
-如果小易喜欢输出"Likes",不喜欢输出"Dislikes"
+Fibonacci数列是这样定义的：
+F[0] = 0
+F[1] = 1
+for each i ≥ 2: F[i] = F[i-1] + F[i-2]
+因此，Fibonacci数列就形如：0, 1, 1, 2, 3, 5, 8, 13, ...，在Fibonacci数列中的数我们称为Fibonacci数。
+给你一个N，你想让其变为一个Fibonacci数，每一步你可以把当前数字X变为X-1或者X+1，现在给你一个数N求最
+少需要多少步可以变为Fibonacci数。
 */
 
 /*
-思路：
-1、判断字符中有无连续的字符
-2、判断没有“xyxy”(这里的x，y指的都是字母，并且可以相同)这样的子序列
-第一个字符与剩下的字符组成子序列，在剩余的字符中查找该子序列的存在*/
+输入描述:
+输入为一个正整数N(1 ≤ N ≤ 1,000,000)
 
-//判断字符中有无连续的字符
-bool func1(string &str)
+输出描述:
+输出一个最小的步数变为Fibonacci数"
+*/
+
+/*思路：
+求一个数离最近的Fibonacci数的距离
+
+Fibonacci求解：使用动态规划
+动态规划：一旦某个给定子问题的解已经算出，则将其记忆化存储，以便下次需要同一个子问题解之时直接查表。
+这种做法在重复子问题的数目关于输入的规模呈指数增长时特别有用
+*/
+
+//求Fibonacci数
+long fib(int n, long target)
 {
-    for (int i = 0; i < str.size()-1; i++)
+    long result = 1;
+    long tmp_1 = 1;
+    long tmp_2 = 0;
+    long min = 1000000;
+    long tmpmin;
+    for (int i = 2; i <=n; i++)
     {
-        if (str[i] == str[i+1])
-            return false;
+        result = tmp_1+tmp_2;
+        if (result < target)
+            tmpmin = target-result;
+        else
+            tmpmin = result-target;
+        if (min > tmpmin)
+            min = tmpmin;
+        tmp_2 = tmp_1;
+        tmp_1 = result;
     }
-    return true;
+    return min;
 }
-
-bool func2(string &str)
-{
-    char substr[2];
-    substr[0] = str[0];
-    bool Exist0 = false;
-    /*第一个字符串挨个与剩下的字符组成子序列*/
-    for (int i = 1; i < str.size(); i++)
-    {
-        substr[1] = str[i];
-        Exist0 = false;
-        for (int j = i+1; j < str.size(); j++)
-        {
-            if (Exist0==false && str[j]==substr[0])
-            {
-                Exist0 = true;
-            }
-            else if (Exist0==true && str[j]==substr[1])
-            {
-                return false;
-            }
-        }
-    }
-    /*再比较除第一个字符串剩下的字符*/
-    if (str.size() > 1)
-    {
-        string nextStr = str.substr(1, str.size()-1);
-        return func2(nextStr);
-    }
-    else
-        return true;
-}
-
-//判断字符串中无
 
 int main()
 {
-    string str;
-    cin >> str;
-    if (func1(str) && func2(str))
-        cout << "Likes";
-    else
-        cout << "Dislikes";
+    long n;
+    cin >> n;
+    
+    cout << fib(40, n);
     system("pause");
     return 0;
 }

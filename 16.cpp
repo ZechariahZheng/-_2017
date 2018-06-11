@@ -1,93 +1,87 @@
 #include <iostream>
-#include <vector>
 #include <string>
 
 using namespace std;
 
-/*考拉有n个字符串字符串，任意两个字符串长度都是不同的。
-考拉最近学习到有两种字符串的排序方法： 1.根据字符串的字典序排序。例如：
-"car" < "carriage" < "cats" < "doggies < "koala"
-2.根据字符串的长度排序。例如：
-"car" < "cats" < "koala" < "doggies" < "carriage"
-考拉想知道自己的这些字符串排列顺序是否满足这两种排序方法，考拉要忙着吃树叶，所以需要你来帮忙验证。*/
+/*
+小易喜欢的单词具有以下特性：
+1.单词每个字母都是大写字母
+2.单词没有连续相等的字母
+3.单词没有形如“xyxy”(这里的x，y指的都是字母，并且可以相同)这样的子序列，子序列可能不连续。
+例如：
+小易不喜欢"ABBA"，因为这里有两个连续的'B'
+小易不喜欢"THETXH"，因为这里包含子序列"THTH"
+小易不喜欢"ABACADA"，因为这里包含子序列"AAAA"
+小易喜欢"A","ABA"和"ABCBA"这些单词
+给你一个单词，你要回答小易是否会喜欢这个单词。*/
 
 /*
 输入描述:
-输入第一行为字符串个数n(n ≤ 100)
-接下来的n行,每行一个字符串,字符串长度均小于100，均由小写字母组成
+输入为一个字符串，都由大写字母组成，长度小于100
 
 输出描述:
-如果这些字符串是根据字典序排列而不是根据长度排列输出"lexicographically",
-
-如果根据长度排列而不是字典序排列输出"lengths",
-
-如果两种方式都符合输出"both"，否则输出"none"
+如果小易喜欢输出"Likes",不喜欢输出"Dislikes"
 */
 
-/*思路
-字符长度排序：
-根据字符串长度来进行排序
-字典排序：
-对于一系列字符串，依次比较每个字符，前一个字符串的字符应该小于等于后一个字符串的字符
-*/
+/*
+思路：
+1、判断字符中有无连续的字符
+2、判断没有“xyxy”(这里的x，y指的都是字母，并且可以相同)这样的子序列
+第一个字符与剩下的字符组成子序列，在剩余的字符中查找该子序列的存在*/
 
-/*检验是否满足字符长度排序*/
-bool func1(vector<string> &all)
+//判断字符中有无连续的字符
+bool func1(string &str)
 {
-    for (int i = 0; i < all.size()-1; i++)
+    for (int i = 0; i < str.size()-1; i++)
     {
-        if (all[i].size() > all[i+1].size())
+        if (str[i] == str[i+1])
             return false;
     }
     return true;
 }
 
-/*检验是否满足字典排序
-即挨个检查字符串，前一个字符串的字符小于等于后一个字符串的字符*/
-bool func2(vector<string> &all)
+bool func2(string &str)
 {
-    int length = 0;
-    for (int i = 0; i < all.size()-1; i++)
+    char substr[2];
+    substr[0] = str[0];
+    bool Exist0 = false;
+    /*第一个字符串挨个与剩下的字符组成子序列*/
+    for (int i = 1; i < str.size(); i++)
     {
-        length = all[i].size();
-        for (int j = 0; j < length; j++)
+        substr[1] = str[i];
+        Exist0 = false;
+        for (int j = i+1; j < str.size(); j++)
         {
-            if (all[i][j] == all[i+1][j])
-                continue;
-            else if (all[i][j] < all[i+1][j])
-                break;
-            else
+            if (Exist0==false && str[j]==substr[0])
+            {
+                Exist0 = true;
+            }
+            else if (Exist0==true && str[j]==substr[1])
+            {
                 return false;
+            }
         }
     }
-    return true;
+    /*再比较除第一个字符串剩下的字符*/
+    if (str.size() > 1)
+    {
+        string nextStr = str.substr(1, str.size()-1);
+        return func2(nextStr);
+    }
+    else
+        return true;
 }
 
+//判断字符串中无
 
 int main()
 {
-    int n;
-    vector<string> all;
-    string tmp;
-    bool result_1, result_2;
-    
-    cin >> n;
-    for (int i = 0; i < n; i++)
-    {
-        cin >> tmp;
-        all.push_back(tmp);
-    }
-    result_1 = func1(all);
-    result_2 = func2(all);
-    
-    if (result_1&&result_2)
-        cout << "both";
-    else if (result_1)
-        cout << "lengths";
-    else if (result_2)
-        cout << "lexicographically";
+    string str;
+    cin >> str;
+    if (func1(str) && func2(str))
+        cout << "Likes";
     else
-        cout << "none"
+        cout << "Dislikes";
     system("pause");
     return 0;
 }

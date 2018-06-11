@@ -1,85 +1,93 @@
 #include <iostream>
-#include <map>
-#include <queue>
+#include <vector>
+#include <string>
 
 using namespace std;
 
-/*
-小易总是感觉饥饿，所以作为章鱼的小易经常出去寻找贝壳吃。最开始小易在一个初始位置x_0。
-对于小易所处的当前位置x，他只能通过神秘的力量移动到 4 * x + 3或者8 * x + 7。因为使用
-神秘力量要耗费太多体力，所以它只能使用神秘力量最多100,000次。贝壳总生长在能被1,000,000,007
-整除的位置(比如：位置0，位置1,000,000,007，位置2,000,000,014等)。小易需要你帮忙计算最
-少需要使用多少次神秘力量就能吃到贝壳。
-*/
+/*考拉有n个字符串字符串，任意两个字符串长度都是不同的。
+考拉最近学习到有两种字符串的排序方法： 1.根据字符串的字典序排序。例如：
+"car" < "carriage" < "cats" < "doggies < "koala"
+2.根据字符串的长度排序。例如：
+"car" < "cats" < "koala" < "doggies" < "carriage"
+考拉想知道自己的这些字符串排列顺序是否满足这两种排序方法，考拉要忙着吃树叶，所以需要你来帮忙验证。*/
 
 /*
 输入描述:
-输入一个初始位置x_0,范围在1到1,000,000,006
+输入第一行为字符串个数n(n ≤ 100)
+接下来的n行,每行一个字符串,字符串长度均小于100，均由小写字母组成
 
 输出描述:
-输出小易最少需要使用神秘力量的次数，如果使用次数使用完还没找到贝壳，则输出-1
+如果这些字符串是根据字典序排列而不是根据长度排列输出"lexicographically",
+
+如果根据长度排列而不是字典序排列输出"lengths",
+
+如果两种方式都符合输出"both"，否则输出"none"
 */
 
-/*思路：
-宽度搜索求最短路径
+/*思路
+字符长度排序：
+根据字符串长度来进行排序
+字典排序：
+对于一系列字符串，依次比较每个字符，前一个字符串的字符应该小于等于后一个字符串的字符
+*/
 
-利用哈希表存储已访问的点，使用队列存储待访问的点
-其中每个哈希表的元素中存储着已访问点，所走过的路径长度*/
-
-
-int bfs(int start)
+/*检验是否满足字符长度排序*/
+bool func1(vector<string> &all)
 {
-    long result = 0;
-    map<long long, long> node;  //已访问点的map
-    queue<long long> q;         //队列
-    q.push(start);
-    node[start] = 0;
-    
-    long long x[2], tmp;
-    while (!q.empty())
+    for (int i = 0; i < all.size()-1; i++)
     {
-        /*第一种走法*/
-        tmp = q.front();
-        x[0] = 4*tmp+3;
-        x[1] = 8*tmp+7;
-        if (node[tmp] > 100000)         //超过限制返回
-            return -1;
-        for (int i = 0; i < 2; i++)
-        {
-            if (x[i]%1000000007 == 0)
-            {
-                node[x[i]] = node[tmp]+1;
-                /*第一次找到终点，即是最短路径*/
-                result = node[x[i]];
-                return result;
-            }
-            else
-            {
-                /*未找到，且未访问过*/
-                if (node.find(x[i]) == node.end())
-                {
-                    node[x[i]] = node[tmp]+1;
-                    q.push(x[i]);
-                }
-            }
-        }
-        q.pop();
+        if (all[i].size() > all[i+1].size())
+            return false;
     }
-    return -1;
+    return true;
 }
+
+/*检验是否满足字典排序
+即挨个检查字符串，前一个字符串的字符小于等于后一个字符串的字符*/
+bool func2(vector<string> &all)
+{
+    int length = 0;
+    for (int i = 0; i < all.size()-1; i++)
+    {
+        length = all[i].size();
+        for (int j = 0; j < length; j++)
+        {
+            if (all[i][j] == all[i+1][j])
+                continue;
+            else if (all[i][j] < all[i+1][j])
+                break;
+            else
+                return false;
+        }
+    }
+    return true;
+}
+
 
 int main()
 {
-    long long x_0;
-    scanf("%lld", &x_0);
-    long result = 0;
+    int n;
+    vector<string> all;
+    string tmp;
+    bool result_1, result_2;
     
-    result = bfs(x_0);
-    if (result < 100000)
-        cout << result;
+    cin >> n;
+    for (int i = 0; i < n; i++)
+    {
+        cin >> tmp;
+        all.push_back(tmp);
+    }
+    result_1 = func1(all);
+    result_2 = func2(all);
+    
+    if (result_1&&result_2)
+        cout << "both";
+    else if (result_1)
+        cout << "lengths";
+    else if (result_2)
+        cout << "lexicographically";
     else
-        cout << "-1";
+        cout << "none"
     system("pause");
-    
     return 0;
 }
